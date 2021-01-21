@@ -1,0 +1,391 @@
+-- Delete records from tables
+DELETE FROM Member;
+DELETE FROM Non_Member;
+Delete from Billing;
+Delete from Invoice;
+Delete from Booking;
+Delete from Customer;
+Delete from Rental_Insurance;
+Delete from Discount;
+Delete from Car;
+DELETE FROM Location;
+Delete from Car_Category;
+Delete from Price_Change;
+
+
+-----------------------------------------------
+-- Procedure for Customer and Non_Member table
+-----------------------------------------------
+CREATE OR REPLACE PROCEDURE AddNonMember(DL_Nbr IN VARCHAR, First_Name IN VARCHAR, 
+    Last_Name IN VARCHAR, Phone_Nbr IN NUMBER, Email_ID IN VARCHAR, Street IN VARCHAR,
+    City IN VARCHAR, State IN VARCHAR, Zip_Code IN VARCHAR, Membership_Flag IN VARCHAR)
+AS
+BEGIN
+    INSERT INTO Customer(DL_Nbr, First_Name, Last_Name, Phone_Nbr, Email_ID, Street,
+    City, State, Zip_Code, Membership_Flag )
+    VALUES(DL_Nbr, First_Name, Last_Name, Phone_Nbr, Email_ID, Street,
+    City, State, Zip_Code, Membership_Flag );
+
+    INSERT INTO NON_MEMBER(DL_Nbr)
+    VALUES(DL_Nbr);
+END; 
+/
+BEGIN
+    AddNonMember('C10542135', 'Mary', 'Adams', 7815679072, 'mary12@gmail.com',
+    '212 South Street', 'Shrewsbury', 'Massachussets', '01545', 'N');
+    
+    AddNonMember('C22874509', 'George', 'Brown', 7713459082, 'browng02@gmail.com',
+    '108th Avenue', 'Bellevue', 'Washington', '98004', 'N');
+    
+    AddNonMember('C23075412', 'Sara', 'Bradbury', 7816752908, 'sara_brad@gmail.com',
+    '279 Brookline Street', 'Newton', 'Massachussets', '02459', 'N');
+    
+    AddNonMember('S87629542', 'Simon', 'Boaz', 7714713673, 'simon_b21@gmail.com',
+    '240 N Broadway', 'Salem', 'New Hampshire', '03079', 'N');
+    
+    AddNonMember('F97645215', 'Jaclyn', 'Noel', 7713743720, 'jac_noel@gmail.com',
+    '621 Salina Street', 'Nedrow', 'New York', '13120', 'N');
+    
+    COMMIT;
+END;
+/
+
+-----------------------------------------------
+-- Procedure for Customer and Member table
+-----------------------------------------------
+
+CREATE OR REPLACE PROCEDURE AddMember(DL_Nbr IN VARCHAR, First_Name IN VARCHAR, 
+    Last_Name IN VARCHAR, Phone_Nbr IN NUMBER, Email_ID IN VARCHAR, Street IN VARCHAR,
+    City IN VARCHAR, State IN VARCHAR, Zip_Code IN VARCHAR, Membership_Flag IN VARCHAR)
+AS
+BEGIN
+    INSERT INTO Customer(DL_Nbr, First_Name, Last_Name, Phone_Nbr, Email_ID, Street,
+    City, State, Zip_Code, Membership_Flag )
+    VALUES(DL_Nbr, First_Name, Last_Name, Phone_Nbr, Email_ID, Street,
+    City, State, Zip_Code, Membership_Flag );
+
+    INSERT INTO Member(DL_Nbr, Memb_Cost)
+    VALUES(DL_Nbr, 5.00);
+END;
+/
+BEGIN
+    AddMember('C10087236', 'Mike', 'Baxter', 7812374658, 'mike_baxter@gmail.com',
+    '3638 Oak Drive', 'Emerald Hills', 'California', '94062', 'Y');
+    
+    AddMember('S00051287', 'Eve', 'Jones', 7814399221, 'eve.jones@gmail.com',
+    '103 Main Street', 'Waterbury', 'Vermont', '05676', 'Y');
+    
+    AddMember('D89712475', 'Robin', 'Schawasky', 7713737023, 'robin21@gmail.com',
+    '250 Cassady Ave', 'Huntington', 'Pennsylvania', '98076', 'Y');
+    
+    AddMember('F82347501', 'Racheal', 'Deller', 7749086721, 'd.racheal22@gmail.com',
+    '802 Park Ave', 'Kokomo', 'Indiana', '46901', 'Y');
+    
+    COMMIT;
+END;
+/
+
+-----------------------------------------------
+-- Procedure for Car_Category table
+-----------------------------------------------
+CREATE OR REPLACE PROCEDURE AddCarCategory(Cat_ID  IN decimal, Cat_Name IN VARCHAR, 
+    Per_Capacity IN VARCHAR, Lugg_Capacity IN VARCHAR)
+AS
+BEGIN
+    INSERT INTO Car_Category(Cat_ID, Cat_Name, Per_Capacity, Lugg_Capacity)
+    VALUES(Cat_ID, Cat_Name, Per_Capacity, Lugg_Capacity);
+END;
+/
+
+BEGIN
+    AddCarCategory(1, 'Economy', 5, 2);
+    AddCarCategory(2, 'Compact', 5, 3);
+    AddCarCategory(3, 'Mid Size', 5, 3);
+    AddCarCategory(4, 'Standard', 5, 3);
+    AddCarCategory(5, 'Full Size', 5, 4);
+    AddCarCategory(6, 'Luxury', 5, 5);
+    AddCarCategory(7, 'Mid Size SUV', 5, 2);
+    AddCarCategory(8, 'Standard SUV', 5, 3);
+    AddCarCategory(9, 'Full size SUV', 8, 2);
+    AddCarCategory(10, 'Mini Van', 7, 5);
+    
+    COMMIT;
+END;
+/    
+
+-----------------------------------------------
+-- Insert Statements for Rental_Insurance table
+-----------------------------------------------
+INSERT INTO Rental_Insurance(Ins_ID, Ins_name, Coverage_Type, Ins_Amt)
+VALUES('I201', 'Collision Damage Waiver', 
+       'Covers theft and total damage to the car', 22.99);
+       
+INSERT INTO Rental_Insurance(Ins_ID, Ins_name, Coverage_Type, Ins_Amt)
+VALUES('I202', 'Supplemental Liability Protection', 
+       'Covers damage done to others', 35.99);
+       
+INSERT INTO Rental_Insurance(Ins_ID, Ins_name, Coverage_Type, Ins_Amt)
+VALUES('I203', 'Personal Accident Insurance', 
+       'Covers medical cost for drivers and passengers', 29.99);
+       
+INSERT INTO Rental_Insurance(Ins_ID, Ins_name, Coverage_Type, Ins_Amt)
+VALUES('I204', 'Personal Effects Coverage', 
+       'Covers theft of personal belongings', 21.99);       
+
+
+-----------------------------------------------
+-- Insert Statements for Discount table
+-----------------------------------------------
+INSERT INTO Discount (Disc_ID, Disc_Type, Disc_Pct, Exp_Dt)
+VALUES ('D678', 'Student Discount', 5.00, cast('31-Mar-2021' AS DATE));
+
+INSERT INTO Discount (Disc_ID, Disc_Type, Disc_Pct, Exp_Dt)
+VALUES ('D234', 'Corporate Discount', 10.00, cast('25-Apr-2021' AS DATE));
+
+INSERT INTO Discount (Disc_ID, Disc_Type, Disc_Pct, Exp_Dt)
+VALUES ('D756', 'Holiday Specials', 12.00, cast('02-Jan-2021' AS DATE));
+
+INSERT INTO Discount (Disc_ID, Disc_Type, Disc_Pct, Exp_Dt)
+VALUES ('D109', 'Weekly Rentals', 8.00, cast('31-Dec-2021' AS DATE));
+
+INSERT INTO Discount (Disc_ID, Disc_Type, Disc_Pct, Exp_Dt)
+VALUES ('D972', 'One-Way Special', 15.00, cast('25-Feb-2021' AS DATE));
+
+INSERT INTO Discount (Disc_ID, Disc_Type, Disc_Pct, Exp_Dt)
+VALUES ('D279', 'Upgrade Special', 20.00, cast('22-Aug-2021' AS DATE));
+
+
+-----------------------------------------------
+-- Insert Statements for Location  table
+-----------------------------------------------
+INSERT INTO Location(Loc_ID, Loc_Name, Street, City, State, Zip_Code)
+    VALUES (101, 'Logan International Airport', '220 Tomahawk Dr', 'Boston',
+    'Massachussets', '02128');
+    
+INSERT INTO Location(Loc_ID, Loc_Name, Street, City, State, Zip_Code)
+    VALUES (102, 'West Houston Airport', 'Groschke Rd', 'Houston',
+    'Texas', '77094');    
+
+INSERT INTO Location(Loc_ID, Loc_Name, Street, City, State, Zip_Code)
+    VALUES (103, 'Washington Dulles Intl Airport', 'Sarrinen Cir', 'Dulles',
+    'Virginia', '20166');
+    
+INSERT INTO Location(Loc_ID, Loc_Name, Street, City, State, Zip_Code)
+    VALUES (104, 'Newark Liberty Intl Airport', 'Brewster Rd', 'Newark',
+    'New Jersey', '07114');    
+    
+INSERT INTO Location(Loc_ID, Loc_Name, Street, City, State, Zip_Code)
+    VALUES(105, 'Salt Lake City Intl Airport', 'N Terminal Dr', 'Salt Lake City',
+    'Utah', '84112');
+    
+INSERT INTO Location(Loc_ID, Loc_Name, Street, City, State, Zip_Code)
+    VALUES(106, 'Cambridge Port', '183 Cambridge Street', 'Allston',
+    'Massachussets', '02134');
+    
+INSERT INTO Location(Loc_ID, Loc_Name, Street, City, State, Zip_Code)
+    VALUES (107, 'Komo Plaza', '100 4th Ave North', 'Seattle',
+    'Washington', '98109');   
+
+COMMIT;
+
+-----------------------------------------------
+-- Insert Statements for Car  table
+----------------------------------------------- 
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES ('ABX1234', 'Civic', 'HONDA', 2014, 10000, 1, 101, 'A', 30.00, 0.9);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES ('SDF4567', 'Fiesta', 'FORD', 2015, 15000, 1, 102, 'N', 29.50, 0.85);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES ('WER32345', 'Accent', 'HYUNDAI', 2014, 12356, 1, 103, 'A', 32.25, 0.85);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES ('GLZ2376', 'Corolla', 'TOYOTA', 2016, 5000, 1, 104, 'A', 33.00, 0.9);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES ('HJK1234', 'Civic', 'HONDA', 2015, 15145, 1, 102, 'A', 32.00, 0.85);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES ('GLS7625', 'Focus', 'FORD', 2014, 12000, 2, 107, 'A', 29.85, 0.88);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES ('FKD8202', 'Golf', 'VOLKSWAGAN', 2016, 9000, 2, 106, 'A', 33.00, 0.78);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES ('HNX1890', 'Prius', 'TOYOTA', 2015, 15690, 2, 105, 'N', 32.00, 0.97);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES ('KJS1983', 'Prius', 'TOYOTA', 2014, 10560, 2, 104, 'A', 30.00, 0.88);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('SDL9356','FOCUS','FORD',2016,10009, 2,103,'A', 32.50, 0.8);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('OTY7293','CRUZE','CHEVROLET',2016,17800,3,102,'A', 35.00, 1.05);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('QWE4562','LEGACY','SUBARU', 2012, 13420, 3,101,'A', 32.00, 0.88);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('CXZ2356','AVENGER','DODGE',2015,5000, 3,102,'A', 34.95, 1.00);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('ASD9090','ACCORD','HONDA',2016,200, 3,103,'A', 35.00, 1.05);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('UYT3981','LEGACY','SUBARU', 2013,16750, 3,104,'A', 30.00, 0.77);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('TRE9726','200','CHRYSTLER', 2012,14320, 4,105,'A', 35.00, 1.25);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('HGF5628','TAURUS','FORD', 2013,15540,4,106,'A', 37.00, 1.05);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('LKJ7253','200','CHRYSTLER', 2014,16300,4,107,'A', 37.50, 1.20);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('VBN6283','TAURUS','FORD', 2015,17500, 4,101,'A', 38.50, 1.00);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('POI7281','200','CHRYSTLER', 2016,18830, 4,102,'N', 39.25, 1.25);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('MNB8654','FALCON','FORD', 2012,10900,5,103,'A', 38.00, 0.75);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('UHV9786','IMPALA','CHEVROLET', 2013,11500, 5,104,'A', 38.85, 0.80);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('EFB5427','WAYFARER','FORD', 2014,14350, 5,105,'A', 39.00, 0.80);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('PLM9873','IMPALA','CHEVROLET', 2015,18900, 5,106,'A', 39.95, 0.85);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('WDV2458','FALCON','FORD', 2016,5600, 5,107,'A', 40.00, 0.90);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('QSC8709','MKZ','LINCOLN', 2012,18700, 6,101,'A', 68.00, 1.25);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('TGB8961','GENESIS','HYUNDAI', 2013,17620,6,102,'A', 70.00, 1.02);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('MKU0172','TLX','ACURA',2014,12345,6,103,'A', 72.00, 2.25);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('CFT1908','328I','BMW', 2015,10800, 6,104,'A', 73.50, 2.25);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('WHM7619','AVALON','TOYOTA', 2016,7800, 6,105,'A', 72.00, 2.00);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('WLZ8955','ESCAPE','FORD', 2012,19800, 7,106,'A', 32.00, 0.89);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('QIO7621','EQUINOX','CHEVROLET', 2013,17560, 7,107,'A', 32.85, 0.90);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('YSN1927','PATHFINDER','NISSAN', 2014,14390, 7,101,'A', 33.00, 0.90);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('EDM8610','GLA','MERCEDEZ BENZ', 2015,12900, 7,102,'A', 38.00, 1.05);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('AHK7325','RAV4','TOYOTA', 2016,3400, 7,103,'A', 37.00, 1.00);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('OHZ0976','EDGE','FORD', 2012,27890, 8,104,'A', 40.00, 1.20);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('RKS9862','TAHOE','CHEVROLET', 2013,20390, 8,105,'A', 40.25, 1.02);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('WIJ6190','EDGE','FORD', 2014,18700, 8,106,'A', 41.00, 1.00);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('ZDT8612','TAHOE','CHEVROLET', 2015,14300, 8,107,'A', 39.00, 0.98);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('LDJ7719','EDGE','FORD', 2016,5690, 8,101,'A', 40.00, 0.98);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('UIA8709','EXPEDITION','FORD', 2012,19870, 9,102,'A', 55.00, 1.50);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('WKJ7972','SEQUOIA','TOYOTA', 2013,14500, 9,103,'A', 56.50, 1.50);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('JLS1097','SUBURBAN','CHEVROLET', 2014,13290, 9,104,'A', 58.00, 1.05);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('UHJ6782','EXPEDITION','FORD', 2015,11750, 9,105,'A',57.00,1.00 );
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('XBM6822','SUBURBAN','CHEVROLET', 2016,34000, 9,106,'A', 58.00, 1.80);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('SHK7767','QUEST','NISSAN', 2012,23478,10,107,'A', 70.00, 0.98);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('JSL7920','ODYSSEY','HONDA', 2013,19320, 10,106,'A', 68.00, 1.50);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('PAJ5289','GRAND CARAVAN','DODGE', 2014,23478, 10,105,'A', 70.00, 2.00);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('TSJ6290','QUEST','NISSAN',2015,13200, 10,104,'A', 71.00, 2.10);
+
+INSERT INTO Car (Car_ID, Car_Model, Make, Model_Yr, Mileage, Cat_ID, Loc_ID, Availabilty, Cost_Per_Day, Late_Fee)
+VALUES('MWO9296','ODYSSEY','HONDA',2016,23000, 10,103,'A', 72.50, 1.98);
+
+Commit;
+
+-----------------------------------------------
+-- Insert Statements for Booking  table
+-----------------------------------------------
+INSERT INTO Booking (Booking_ID, From_Dt, Ret_Dt, Amount, Status, Pick_Loc, Drop_Loc, Car_ID, Ins_ID,DL_Nbr, Disc_ID, Act_Ret_Dt)
+VALUES('B1001',TO_TIMESTAMP('2020-11-10 10:00:00','YYYY-MM-DD HH24:MI:SS'),
+		TO_TIMESTAMP('2020-11-15 10:00:00', 'YYYY-MM-DD HH24:MI:SS'),
+		150.25,'R',101, 101,'ABX1234','I201', 'C10542135', 'D756',
+		TO_TIMESTAMP('2020-11-15 08:00:00', 'YYYY-MM-DD HH24:MI:SS') );
+
+INSERT INTO Booking (Booking_ID, From_Dt, Ret_Dt, Amount, Status, Pick_Loc, Drop_Loc, Car_ID, Ins_ID, DL_Nbr, Disc_ID, Act_Ret_Dt)
+VALUES('B1002',TO_TIMESTAMP('2020-10-10 11:00:00', 'YYYY-MM-DD HH24:MI:SS'),
+		TO_TIMESTAMP('2020-10-24 10:00:00', 'YYYY-MM-DD HH24:MI:SS'),
+		90.00,'C', 102, 102,'SDF4567', 'I201', 'S87629542', NULL, NULL);
+
+INSERT INTO Booking (Booking_ID, From_Dt, Ret_Dt, Amount, Status, Pick_Loc, Drop_Loc, Car_ID, Ins_ID, DL_Nbr, Disc_ID, Act_Ret_Dt)
+VALUES('B1003',TO_TIMESTAMP('2020-02-10 13:00:00','YYYY-MM-DD HH24:MI:SS'),
+		TO_TIMESTAMP('2020-01-15 13:00:00', 'YYYY-MM-DD HH24:MI:SS'),
+		450,'R', 101, 101,'QSC8709','I202','F82347501','D234',TO_TIMESTAMP('2020-01-15 13:00:00', 'YYYY-MM-DD HH24:MI:SS') );
+
+INSERT INTO Booking (Booking_ID, From_Dt, Ret_Dt, Amount, Status, Pick_Loc, Drop_Loc, Car_ID, Ins_ID, DL_Nbr, Disc_ID, Act_Ret_Dt)
+VALUES('B1004',TO_TIMESTAMP('2020-04-24 13:00:00','YYYY-MM-DD HH24:MI:SS'),
+		TO_TIMESTAMP('2020-04-25 20:30:00', 'YYYY-MM-DD HH24:MI:SS'),
+		48.89,'R',106,106,'WLZ8955','I202','C23075412','D234',
+		 TO_TIMESTAMP('2020-04-26 10:30:00', 'YYYY-MM-DD HH24:MI:SS'));
+
+INSERT INTO Booking (Booking_ID, From_Dt, Ret_Dt, Amount, Status, Pick_Loc, Drop_Loc, Car_ID, Ins_ID, DL_Nbr, Disc_ID, Act_Ret_Dt)
+VALUES('B1005',TO_TIMESTAMP('2020-04-18 09:00:00','YYYY-MM-DD HH24:MI:SS'),
+		TO_TIMESTAMP('2020-04-25 09:00:00', 'YYYY-MM-DD HH24:MI:SS'),
+		266.25,'B', 102, 106,'POI7281','I203',  'D89712475'   ,'D972', NULL);
+
+INSERT INTO Booking (Booking_ID, From_Dt, Ret_Dt, Amount, Status, Pick_Loc, Drop_Loc, Car_ID, Ins_ID, DL_Nbr, Disc_ID, Act_Ret_Dt)
+VALUES('B1006',TO_TIMESTAMP('2020-04-21 17:00:00','YYYY-MM-DD HH24:MI:SS'),
+		TO_TIMESTAMP('2020-04-25 17:00:00', 'YYYY-MM-DD HH24:MI:SS'),
+		168.00,'B', 105, 107,'HNX1890', 'I203', 'F82347501', 'D234', NULL);
+
+INSERT INTO Booking (Booking_ID, From_Dt, Ret_Dt, Amount, Status, Pick_Loc, Drop_Loc, Car_ID, Ins_ID, DL_Nbr, Disc_ID, Act_Ret_Dt)
+VALUES('B1007',TO_TIMESTAMP('2020-04-16 08:00:00','YYYY-MM-DD HH24:MI:SS'),
+		TO_TIMESTAMP('2020-04-25 17:00:00', 'YYYY-MM-DD HH24:MI:SS'),
+		405,'B', 103, 103,'WER32345','I201', 'C10087236', 'D756', NULL);
+
+INSERT INTO Booking (Booking_ID, From_Dt, Ret_Dt, Amount, Status, Pick_Loc, Drop_Loc, Car_ID, Ins_ID, DL_Nbr, Disc_ID, Act_Ret_Dt)
+VALUES('B1008',TO_TIMESTAMP('2020-04-11 08:00:00','YYYY-MM-DD HH24:MI:SS'),
+		TO_TIMESTAMP('2020-04-25 17:00:00', 'YYYY-MM-DD HH24:MI:SS'),
+		630,'B', 104, 104,'GLZ2376', 'I201',  'S00051287', 'D756', NULL);
+
+COMMIT;

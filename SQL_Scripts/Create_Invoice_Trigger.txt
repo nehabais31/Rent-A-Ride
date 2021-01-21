@@ -1,0 +1,50 @@
+----------------------------------------------------------------------------------
+--  Trigger for Invoice Table Entry
+----------------------------------------------------------------------------------
+
+CREATE OR REPLACE TRIGGER CreateInvoiceTrigger
+AFTER INSERT ON BOOKING
+FOR EACH ROW
+DECLARE
+-- declaration section
+    lastInvNbr INVOICE.Invoice_Nbr%TYPE;
+    newInvNbr INVOICE.Invoice_Nbr%TYPE;
+BEGIN
+    SELECT CASE
+            WHEN EXISTS(SELECT Invoice_Nbr 
+                             FROM ( SELECT Invoice_Nbr, ROWNUM AS RN FROM INVOICE)
+                             WHERE RN= (SELECT MAX(ROWNUM) FROM INVOICE))
+            THEN 1
+            ELSE 0
+            end into lastInvNbr
+     from dual; 
+     
+     IF lastInvNbr = 1
+     then 
+        SELECT Invoice_Nbr into  lastInvNbr
+                             FROM ( SELECT Invoice_Nbr, ROWNUM AS RN FROM INVOICE)
+                             WHERE RN= (SELECT MAX(ROWNUM) FROM INVOICE);
+                             
+         newInvNbr := CASE 
+                     WHEN TO_NUMBER(SUBSTR(lastInvNbr,-3)) < 09 THEN 'INV' || '00' || TO_CHAR(TO_NUMBER(SUBSTR(lastInvNbr,-3))+1)
+                     WHEN TO_NUMBER(SUBSTR(lastInvNbr,-3)) < 99 THEN 'INV' || '0' || TO_CHAR(TO_NUMBER(SUBSTR(lastInvNbr,-3))+1)
+                     ELSE 'INV' || TO_CHAR(TO_NUMBER(SUBSTR(lastInvNbr,-3))+1)
+                 END;                     
+     else
+        newInvNbr :=  'INV001';
+     END IF;   
+    
+	INSERT INTO INVOICE(Invoice_Nbr, Invoice_Dt, Booking_ID)
+	VALUES(newInvNbr,CAST(:NEW.FROM_DT AS DATE), :NEW.Booking_ID );
+END;
+/
+
+
+/*
+INSERT INTO Booking (Booking_ID, From_Dt, Ret_Dt, Amount, Status, Pick_Loc, Drop_Loc, Car_ID, Ins_ID, DL_Nbr, Disc_ID, Act_Ret_Dt)
+VALUES('B1009',TO_TIMESTAMP('2020-11-21 08:00:00','YYYY-MM-DD HH24:MI:SS'),
+		TO_TIMESTAMP('2020-11-24 17:00:00', 'YYYY-MM-DD HH24:MI:SS'),
+		220.25,'Booked', 104, 104,'FKD8202', 'I201',  'C10542135', 'D756', NULL);
+
+SELECT * FROM INVOICE;
+/*

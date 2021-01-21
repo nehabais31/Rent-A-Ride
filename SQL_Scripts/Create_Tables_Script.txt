@@ -1,0 +1,250 @@
+-- Drop tables first if any
+
+ALTER TABLE MEMBER DROP CONSTRAINT MEMBER_FK;
+ALTER TABLE NON_MEMBER DROP CONSTRAINT NON_MEM_FK;
+ALTER TABLE Price_Change DROP CONSTRAINT Price_Change_FK;
+ALTER TABLE CAR DROP CONSTRAINT CAR_FK1;
+ALTER TABLE CAR DROP CONSTRAINT CAR_FK2;
+ALTER TABLE BOOKING DROP CONSTRAINT BOOKING_FK1;
+ALTER TABLE BOOKING DROP CONSTRAINT BOOKING_FK2;
+ALTER TABLE BOOKING DROP CONSTRAINT BOOKING_FK3;
+ALTER TABLE BOOKING DROP CONSTRAINT BOOKING_FK4;
+ALTER TABLE BOOKING DROP CONSTRAINT BOOKING_FK5;
+ALTER TABLE BOOKING DROP CONSTRAINT BOOKING_FK6;
+ALTER TABLE INVOICE DROP CONSTRAINT INVOICE_FK1;
+ALTER TABLE BILLING DROP CONSTRAINT BILLING_FK1;
+
+
+DROP TABLE Customer;
+DROP TABLE Member;
+DROP Table Non_Member;
+DROP TABLE Location;
+DROP TABLE Rental_Insurance;
+DROP TABLE Discount;
+DROP TABLE Car_Category;
+DROP TABLE Car;
+DROP TABLE Booking;
+DROP TABLE Invoice;
+DROP TABLE Billing;
+DROP TABLE Price_Change;
+
+--*****************
+-- Create tables  *
+--*****************
+
+-- Customer Table
+CREATE TABLE Customer
+(
+    DL_Nbr varchar(9) NOT NULL PRIMARY KEY,
+    First_Name varchar(255) NOT NULL,
+    Last_Name varchar(255) NOT NULL,
+    Phone_Nbr number(10) NOT NULL,
+    Email_ID varchar(255) NOT NULL,
+    Street varchar(255) NOT NULL,
+    City varchar(255) NOT NULL,
+    State varchar(255) NOT NULL,
+    Zip_Code varchar(64) NOT NULL,
+    Membership_Flag varchar(1)
+);
+
+
+-- Member Table
+CREATE TABLE Member
+(
+    DL_Nbr varchar(9) NOT NULL PRIMARY KEY,
+    Memb_Cost decimal(3,2)
+);
+
+ALTER TABLE Member ADD
+(
+    CONSTRAINT MEMBER_FK
+    FOREIGN KEY (DL_Nbr) REFERENCES Customer(DL_Nbr)
+);
+
+-- Non_Member Table
+CREATE TABLE Non_Member
+(
+    DL_Nbr varchar(9) NOT NULL PRIMARY KEY
+);
+
+ALTER TABLE NON_MEMBER ADD
+(
+    CONSTRAINT NON_MEM_FK
+    FOREIGN KEY (DL_Nbr) REFERENCES Customer(DL_Nbr)
+);
+
+--Location Table
+CREATE TABLE Location
+(
+    Loc_ID number(4) NOT NULL PRIMARY KEY,
+    Loc_Name varchar(255) NOT NULL,
+    Street varchar(255) NOT NULL,
+    City varchar(255) NOT NULL,
+    State varchar(255) NOT NULL,
+    Zip_Code varchar(255) NOT NULL
+);
+
+-- Rental_Insurance Table
+CREATE TABLE Rental_Insurance
+(
+    Ins_ID varchar(20) NOT NULL PRIMARY KEY,
+    Ins_name varchar(60) NOT NULL,
+    Coverage_Type varchar(255) NOT NULL,
+    Ins_Amt DECIMAL(5,2) NOT NULL
+);
+
+-- Discount Table
+CREATE TABLE Discount
+(
+    Disc_ID varchar(4) NOT NULL PRIMARY KEY,
+    Disc_Type varchar(64),
+    Disc_Pct decimal(4,2) NOT NULL,
+    Exp_Dt date NOT NULL
+);
+
+-- Car_Category Table
+CREATE TABLE Car_Category
+(
+    Cat_ID decimal(5) NOT NULL PRIMARY KEY,
+    Cat_Name varchar(50) NOT NULL,
+    Per_Capacity number(2) NOT NULL,
+    Lugg_Capacity number(2) NOT NULL
+ );
+
+-- Car Table
+CREATE TABLE Car
+(
+    Car_ID varchar(17) NOT NULL PRIMARY KEY,
+    Car_Model varchar(255) NOT NULL,
+    Make varchar(255) NOT NULL,
+    Model_Yr number(4) NOT NULL,
+    Mileage decimal(5) NOT NULL,
+    Cat_ID decimal(5) NOT NULL,
+    Loc_ID number(4) NOT NULL,
+    Availabilty varchar(1) NOT NULL,
+    Cost_Per_Day decimal(5,2) NOT NULL,
+    Late_Fee decimal(4,2) NOT NULL
+);
+
+ALTER TABLE CAR ADD
+(
+    CONSTRAINT CAR_FK1
+    FOREIGN KEY (Cat_ID) REFERENCES Car_Category(Cat_ID)
+);
+
+ALTER TABLE CAR ADD
+(
+    CONSTRAINT CAR_FK2
+    FOREIGN KEY (Loc_ID) REFERENCES Location(Loc_ID)
+);
+
+
+-- Booking Table
+CREATE TABLE Booking
+(
+    Booking_ID varchar(5) NOT NULL PRIMARY KEY,
+    From_Dt Timestamp NOT NULL,
+    Ret_Dt Timestamp NOT NULL,
+    Amount decimal(7,2) NOT NULL,
+    Status varchar(1) NOT NULL,
+    Pick_Loc number(4) NOT NULL,
+    Drop_Loc number(4) NOT NULL,
+    Car_ID varchar(17) NOT NULL,
+    Ins_ID varchar(20) NOT NULL,
+    DL_Nbr  varchar(9) NOT NULL ,
+    Disc_ID varchar(4),
+    Act_Ret_Dt Timestamp
+);
+
+ALTER TABLE Booking ADD
+( 
+    CONSTRAINT BOOKING_FK1
+    FOREIGN KEY (Pick_Loc) REFERENCES Location(Loc_ID)
+);
+
+ALTER TABLE Booking ADD
+( 
+    CONSTRAINT BOOKING_FK2
+    FOREIGN KEY (Drop_Loc) REFERENCES Location(Loc_ID)
+);
+
+ALTER TABLE Booking ADD
+( 
+    CONSTRAINT BOOKING_FK3
+    FOREIGN KEY (Car_ID) REFERENCES Car(Car_ID)
+);
+
+ALTER TABLE Booking ADD
+( 
+    CONSTRAINT BOOKING_FK4
+    FOREIGN KEY (Ins_ID) REFERENCES Rental_Insurance(Ins_ID)
+);
+
+ALTER TABLE Booking ADD
+( 
+    CONSTRAINT BOOKING_FK5
+    FOREIGN KEY (Disc_ID) REFERENCES Discount(Disc_ID)
+);
+
+ALTER TABLE Booking ADD
+( 
+    CONSTRAINT BOOKING_FK6
+    FOREIGN KEY  (DL_Nbr) REFERENCES Customer(DL_Nbr)
+);
+
+
+-- Invoice Table
+CREATE TABLE Invoice
+(
+    Invoice_Nbr varchar(10) NOT NULL PRIMARY KEY,
+    Invoice_Dt date NOT NULL,
+    Booking_ID varchar(5) NOT NULL
+);
+    
+ALTER TABLE Invoice ADD
+(
+    CONSTRAINT INVOICE_FK1
+    FOREIGN KEY (Booking_ID) REFERENCES Booking(Booking_ID)
+);
+
+
+--Billing Table
+CREATE TABLE Billing
+(
+    Bill_ID varchar(10) NOT NULL PRIMARY KEY,
+    Bill_Dt date NOT NULL,
+    Status varchar(10) NOT NULL,
+    Disc_Amt decimal(5,2),
+    Total_Amt decimal(7,2) NOT NULL,
+    Invoice_Nbr varchar(10) NOT NULL,
+    Total_Late_Fee decimal(10,2) NOT NULL	
+);
+
+ALTER TABLE Billing ADD
+(
+    CONSTRAINT BILLING_FK1
+    FOREIGN KEY (Invoice_Nbr) REFERENCES Invoice(Invoice_Nbr)
+);
+
+
+------------------------------------------------------
+-- Price_Change table
+-----------------------------------------------------
+CREATE TABLE Price_Change
+(
+    Price_Change_ID decimal(10) NOT NULL PRIMARY KEY,
+    Old_Price decimal(5,2) NOT NULL,
+    New_Price decimal(5,2) NOT NULL,
+    Car_ID varchar(17)  NOT NULL,
+    Change_Dt date
+);
+    
+ALTER TABLE Price_Change ADD
+(
+    CONSTRAINT PRICE_CHANGE_FK
+    FOREIGN KEY (Car_ID) REFERENCES Car(Car_ID) 
+);
+
+
+COMMIT;
+

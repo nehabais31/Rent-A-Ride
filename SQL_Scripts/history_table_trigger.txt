@@ -1,0 +1,31 @@
+----------------------------------------------------------------------------------
+--  Trigger for updating history table for Car Price changes
+----------------------------------------------------------------------------------
+
+CREATE OR REPLACE TRIGGER PriceChangeTrigger
+BEFORE UPDATE OF Cost_Per_Day ON Car
+FOR EACH ROW
+BEGIN
+	INSERT INTO Price_Change(Price_Change_ID, Old_Price, New_Price, Car_ID, Change_Dt)
+	VALUES (NVL((SELECT MAX(Price_Change_ID)+1 FROM Price_Change), 1), 
+		:OLD.Cost_Per_Day ,
+		:NEW.Cost_Per_Day ,
+		:NEW.Car_ID,
+		trunc(sysdate));
+END;
+/
+
+/*
+SELECT CAR_ID, Cost_Per_Day FROM CAR 
+WHERE CAR_ID = 'CXZ2356';
+
+UPDATE CAR SET Cost_Per_Day = 34.00 WHERE CAR_ID = 'CXZ2356';
+UPDATE CAR SET Cost_Per_Day = 33.85 WHERE CAR_ID = 'CXZ2356';
+UPDATE CAR SET Cost_Per_Day = 31.95 WHERE CAR_ID = 'CXZ2356';
+UPDATE CAR SET Cost_Per_Day = 29.55 WHERE CAR_ID = 'CXZ2356';
+UPDATE CAR SET Cost_Per_Day = 38.25 WHERE CAR_ID = 'RKS9862';
+UPDATE CAR SET Cost_Per_Day = 50.55 WHERE CAR_ID = 'WKJ7972';
+UPDATE CAR SET Cost_Per_Day = 38.25 WHERE CAR_ID = 'PLM9873';
+
+SELECT * FROM Price_Change;
+/*

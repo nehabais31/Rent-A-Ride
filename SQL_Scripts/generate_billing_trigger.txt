@@ -1,0 +1,140 @@
+-------------------------------------------------------------------------------------------
+--Procedure Name: CALCULATE_LATE_FEE
+--This stored procedure calculates the total late fee 
+-------------------------------------------------------------------------------------------
+CREATE OR REPLACE PROCEDURE CALCULATE_LATE_FEE
+(actualReturnDate IN BOOKING.ACT_RET_DT%TYPE,
+ReturnDate IN BOOKING.RET_DT%TYPE,
+regNum IN BOOKING.CAR_ID%TYPE,
+amount IN BOOKING.AMOUNT%TYPE,
+totalLateFee OUT BILLING.TOTAL_AMT%TYPE) AS
+--local declarations
+lateFeePerHour CAR.LATE_FEE%TYPE;
+hourDifference DECIMAL(10,2);
+BEGIN
+    SELECT LATE_FEE INTO lateFeePerHour
+    FROM CAR WHERE CAR_ID = regNum;
+
+    IF actualReturnDate > ReturnDate 
+    THEN
+        hourDifference := (TO_DATE (TO_CHAR (actualReturnDate,
+                            'dd/mm/yyyy hh24:mi:ss'), 'dd/mm/yyyy hh24:mi:ss')
+                            - TO_DATE (TO_CHAR (ReturnDate, 'dd/mm/yyyy hh24:mi:ss')
+                            ,'dd/mm/yyyy hh24:mi:ss'))*(24);
+    totalLateFee := hourDifference * lateFeePerHour;
+    ELSE
+        totalLateFee := 0;
+    END IF;
+END;
+/
+
+
+-------------------------------------------------------------------------------------------
+--Procedure Name: CALCULATE_DISCOUNT_AMOUNT
+--This stored procedure calculates the discount amount for a booking.
+-------------------------------------------------------------------------------------------
+CREATE OR REPLACE PROCEDURE CALCULATE_DISCOUNT_AMOUNT
+(dlNum IN CUSTOMER.DL_NBR%TYPE,
+amount IN BILLING.TOTAL_AMT%TYPE,
+discountCode IN DISCOUNT.DISC_ID%TYPE,
+discountAmt OUT BILLING.DISC_AMT%TYPE) AS
+--local declarations
+memberType CUSTOMER.MEMBERSHIP_FLAG%TYPE;
+discountPercentage DISCOUNT.DISC_PCT%TYPE;
+BEGIN
+    SELECT MEMBERSHIP_FLAG INTO memberType FROM CUSTOMER
+    WHERE DL_NBR = dlNum;
+
+    IF NVL(discountCode,'NULL') <> 'NULL' THEN
+        SELECT DISC_PCT INTO discountPercentage
+        FROM DISCOUNT WHERE DISC_ID = discountCode;
+        
+        IF memberType = 'Y' THEN
+            discountAmt := amount * ((discountPercentage+10)/100);
+        ELSE
+            discountAmt := amount * (discountPercentage/100);
+        END IF;
+    ELSE
+        IF memberType = 'Y' THEN
+            discountAmt := amount * 0.1;
+        ELSE
+            discountAmt := 0;
+        END IF;
+    END IF;
+END;
+/
+
+-------------------------------------------------------------------------------------------
+--Trigger Name: GENERATE_BILLING
+--This trigger generates the bill and inserts a row in Billing_Details table
+-------------------------------------------------------------------------------------------
+CREATE OR REPLACE TRIGGER GENERATE_BILLING
+AFTER UPDATE ON BOOKING
+FOR EACH ROW
+WHEN (NVL(TO_CHAR(NEW.ACT_RET_DT),'NULL') <> 'NULL' AND
+                  NEW.STATUS = 'R')
+DECLARE
+-- declaration section
+lastBillId BILLING.BILL_ID%TYPE;
+newBillId BILLING.BILL_ID%TYPE;
+discountAmt BILLING.DISC_AMT%TYPE;
+totalLateFee BILLING.TOTAL_LATE_FEE%TYPE;
+invoiceNbr INVOICE.INVOICE_NBR%TYPE;
+totalAmountBeforeDiscount BILLING.TOTAL_AMT%TYPE;
+finalAmount BILLING.TOTAL_AMT%TYPE;
+BEGIN
+    SELECT INVOICE_NBR INTO invoiceNbr 
+    FROM INVOICE 
+    WHERE BOOKING_ID = :NEW.BOOKING_ID;
+
+    SELECT CASE
+            WHEN EXISTS(SELECT BILL_ID 
+                         FROM ( SELECT BILL_ID, ROWNUM AS RN FROM BILLING)
+                         WHERE RN= (SELECT MAX(ROWNUM) FROM BILLING))
+            THEN 1
+            ELSE 0
+            END into lastBillId
+     from dual; 
+     
+     IF lastBillId = 1
+     THEN 
+        SELECT BILL_ID INTO lastBillId 
+                         FROM ( SELECT BILL_ID, ROWNUM AS RN FROM BILLING)
+                         WHERE RN= (SELECT MAX(ROWNUM) FROM BILLING);
+                             
+         newBillId := CASE 
+                     WHEN TO_NUMBER(SUBSTR(lastBillId,-3)) < 09 THEN 'BL' || '00' || TO_CHAR(TO_NUMBER(SUBSTR(lastBillId,-3))+1)
+                     WHEN TO_NUMBER(SUBSTR(lastBillId,-3)) < 99 THEN 'BL' || '0' || TO_CHAR(TO_NUMBER(SUBSTR(lastBillId,-3))+1)
+                     ELSE 'BL' || TO_CHAR(TO_NUMBER(SUBSTR(lastBillId,-3))+1)
+                 END;                     
+     else
+        newBillId :=  'BL001';
+     END IF;
+     
+   CALCULATE_LATE_FEE(:NEW.ACT_RET_DT, :NEW.RET_DT,
+                               :NEW.CAR_ID,:NEW.AMOUNT, totalLateFee);
+    
+    totalAmountBeforeDiscount := :NEW.AMOUNT + totalLateFee;
+
+    CALCULATE_DISCOUNT_AMOUNT(:NEW.DL_NBR, totalAmountBeforeDiscount,
+                              :NEW.DISC_ID, discountAmt);
+
+    finalAmount := totalAmountBeforeDiscount - discountAmt;
+    
+--insert new bill into the billing_details table
+    INSERT INTO BILLING(BILL_ID,BILL_DT,STATUS,DISC_AMT,
+                                TOTAL_AMT,INVOICE_NBR,TOTAL_LATE_FEE)
+    VALUES (newBillId, CAST(:NEW.ACT_RET_DT AS DATE), 'Paid',
+            discountAmt,finalAmount,invoiceNbr,totalLateFee);
+END;
+/
+
+/*
+select * from Booking;
+SELECT * FROM bILLING;
+
+UPDATE BOOKING
+SET ACT_RET_DT = TO_TIMESTAMP('2020-11-24 20:30:00', 'YYYY-MM-DD HH24:MI:SS'),
+    STATUS = 'R'
+WHERE BOOKING_ID = 'B1008';
+/*
