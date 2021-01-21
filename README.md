@@ -32,9 +32,11 @@ Customer first download the App or visits the website and registers himself. He 
 9.	Each booking may have a rental insurance. A rental insurance may be associated to multiple bookings.  
 10.	A single bill is generated for multiple invoices associated with a particular booking. A single bill is generated for a customer when he returns the car.    
 
+  
 ### Conceptual ERD:
 ![Conceptual](https://user-images.githubusercontent.com/60439971/105414441-7e63e580-5c05-11eb-8607-82af1fd6fb89.png)
 
+  
 ### Physical ERD:
 ![Physical-Physical jpg-Physical](https://user-images.githubusercontent.com/60439971/105414515-96d40000-5c05-11eb-8981-9b02ef402c51.png)
 
